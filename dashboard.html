@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Ledgerly</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+</style>
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy2: #0f1729;
+    --navy3: #151e35;
+    --navy4: #1a2440;
+    --green: #00e87a;
+    --green2: #00c968;
+    --green-dim: rgba(0,232,122,0.1);
+    --white: #ffffff;
+    --gray: #8892a4;
+    --gray2: #c2cad6;
+    --border: rgba(255,255,255,0.07);
+    --card: rgba(255,255,255,0.03);
+    --sidebar-w: 240px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Outfit', sans-serif; background: var(--navy); color: var(--white); min-height: 100vh; display: flex; overflow-x: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--navy2); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; }
+  .sidebar-logo { padding: 28px 24px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo a { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 24px; color: var(--white); text-decoration: none; }
+  .sidebar-logo a span { color: var(--green); }
+  .sidebar-client { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .client-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); flex-shrink: 0; }
+  .client-info { min-width: 0; }
+  .client-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .client-plan { font-size: 11px; color: var(--green); font-weight: 500; }
+  .sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--gray2); cursor: pointer; transition: all 0.2s; border: none; background: transparent; font-family: 'Outfit', sans-serif; width: 100%; text-align: left; }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+  .nav-item.active { background: var(--green-dim); color: var(--green); }
+  .nav-item .icon { width: 18px; text-align: center; font-size: 15px; }
+  .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); padding: 16px 12px 6px; }
+  .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
+  .logout-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--gray); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .logout-btn:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* TOP BAR */
+  .topbar { padding: 20px 40px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--navy); position: sticky; top: 0; z-index: 40; }
+  .topbar-left h1 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; letter-spacing: -0.2px; }
+  .topbar-left p { font-size: 13px; color: var(--gray); margin-top: 2px; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .topbar-badge { display: flex; align-items: center; gap: 6px; background: var(--green-dim); border: 1px solid rgba(0,232,122,0.2); border-radius: 100px; padding: 6px 14px; font-size: 12px; color: var(--green); font-weight: 600; }
+  .topbar-badge::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+  /* CONTENT */
+  .content { padding: 36px 40px; flex: 1; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: border-color 0.3s; }
+  .stat-card:hover { border-color: rgba(0,232,122,0.15); }
+  .stat-card-label { font-size: 12px; color: var(--gray); font-weight: 500; letter-spacing: 0.3px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .stat-card-val { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .stat-card-val .green { color: var(--green); }
+  .stat-card-change { font-size: 12px; font-weight: 500; }
+  .stat-card-change.up { color: var(--green); }
+  .stat-card-change.down { color: #e84040; }
+
+  /* GRID */
+  .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+  .dash-card-title { font-size: 14px; font-weight: 600; color: var(--gray2); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+  .dash-card-title span { font-size: 12px; color: var(--gray); font-weight: 400; }
+
+  /* MINI CHART */
+  .mini-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
+  .mc-bar { flex: 1; border-radius: 4px 4px 0 0; background: rgba(0,232,122,0.15); position: relative; transition: background 0.3s; cursor: pointer; }
+  .mc-bar:hover { background: rgba(0,232,122,0.4); }
+  .mc-bar.current { background: var(--green); }
+  .chart-labels { display: flex; gap: 8px; margin-top: 8px; }
+  .chart-label { flex: 1; text-align: center; font-size: 10px; color: var(--gray); }
+
+  /* TRANSACTIONS */
+  .tx-list { display: flex; flex-direction: column; gap: 0; }
+  .tx-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--navy3); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-date { font-size: 11px; color: var(--gray); margin-top: 2px; }
+  .tx-amount { font-size: 14px; font-weight: 600; }
+  .tx-amount.credit { color: var(--green); }
+  .tx-amount.debit { color: var(--gray2); }
+
+  /* TASKS */
+  .task-list { display: flex; flex-direction: column; gap: 10px; }
+  .task-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--navy3); border-radius: 10px; font-size: 13px; }
+  .task-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+  .task-check.done { background: var(--green); border-color: var(--green); }
+  .task-check.done::after { content: '✓'; color: var(--navy); font-size: 10px; font-weight: 700; }
+  .task-text { flex: 1; color: var(--gray2); }
+  .task-text.done { text-decoration: line-through; color: var(--gray); }
+  .task-due { font-size: 11px; color: var(--gray); white-space: nowrap; }
+
+  /* UPLOAD PANEL */
+  .upload-zone { border: 2px dashed rgba(0,232,122,0.2); border-radius: 16px; padding: 48px; text-align: center; transition: all 0.3s; cursor: pointer; background: var(--green-dim); margin-bottom: 28px; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: rgba(0,232,122,0.08); }
+  .upload-icon { font-size: 40px; margin-bottom: 16px; }
+  .upload-zone h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
+  .upload-btn { background: var(--green); color: var(--navy); border: none; border-radius: 8px; padding: 10px 24px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .upload-btn:hover { background: var(--green2); }
+  #fileInput { display: none; }
+
+  .uploaded-files { display: flex; flex-direction: column; gap: 10px; }
+  .file-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+  .file-icon { font-size: 22px; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-size { font-size: 11px; color: var(--gray); margin-top: 2px; }
+  .file-status { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
+  .file-status.uploaded { background: var(--green-dim); color: var(--green); }
+  .file-status.pending { background: rgba(255,200,0,0.1); color: #ffc800; }
+  .file-delete { background: none; border: none; color: var(--gray); cursor: pointer; font-size: 16px; padding: 4px; border-radius: 4px; transition: color 0.2s; }
+  .file-delete:hover { color: #e84040; }
+
+  /* MESSAGES */
+  .messages-wrap { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; height: 500px; }
+  .msg-threads { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow-y: auto; }
+  .msg-thread-item { padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; }
+  .msg-thread-item:hover, .msg-thread-item.active { background: rgba(0,232,122,0.05); }
+  .msg-thread-item.active { border-left: 2px solid var(--green); }
+  .msg-thread-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .msg-thread-preview { font-size: 12px; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-thread-time { font-size: 11px; color: var(--gray); float: right; }
+  .msg-chat { background: var(--card); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; }
+  .msg-chat-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .msg-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--navy); flex-shrink: 0; }
+  .msg-chat-name { font-size: 14px; font-weight: 600; }
+  .msg-chat-role { font-size: 11px; color: var(--green); }
+  .msg-body { flex: 1; padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .msg-bubble { max-width: 80%; }
+  .msg-bubble.them { align-self: flex-start; }
+  .msg-bubble.me { align-self: flex-end; }
+  .bubble-text { padding: 12px 16px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+  .them .bubble-text { background: var(--navy3); color: var(--gray2); border-radius: 4px 12px 12px 12px; }
+  .me .bubble-text { background: var(--green); color: var(--navy); font-weight: 500; border-radius: 12px 4px 12px 12px; }
+  .bubble-time { font-size: 10px; color: var(--gray); margin-top: 4px; }
+  .me .bubble-time { text-align: right; }
+  .msg-input-row { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+  .msg-input { flex: 1; background: var(--navy3); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .msg-input:focus { border-color: rgba(0,232,122,0.3); }
+  .msg-send { background: var(--green); border: none; border-radius: 10px; padding: 11px 20px; color: var(--navy); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .msg-send:hover { background: var(--green2); }
+
+  /* SECTION TITLE */
+  .section-head { margin-bottom: 24px; }
+  .section-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .section-head p { font-size: 14px; color: var(--gray); font-weight: 300; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,232,122,0.2); border-radius: 2px; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .topbar, .content { padding-left: 20px; padding-right: 20px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .dash-grid { grid-template-columns: 1fr; }
+    .messages-wrap { grid-template-columns: 1fr; height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo"><a href="index.html">Ledger<span>ly</span></a></div>
+  <div class="sidebar-client">
+    <div class="client-avatar">MR</div>
+    <div class="client-info">
+      <div class="client-name">Marcus Rivera</div>
+      <div class="client-plan">✦ Growth Plan</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <button class="nav-item active" onclick="showPanel('overview',this)"><span class="icon">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="showPanel('reports',this)"><span class="icon">📈</span> Reports</button>
+    <div class="nav-section-label">Documents</div>
+    <button class="nav-item" onclick="showPanel('upload',this)"><span class="icon">📂</span> Upload Files</button>
+    <button class="nav-item" onclick="showPanel('vault',this)"><span class="icon">🔒</span> Document Vault</button>
+    <div class="nav-section-label">Support</div>
+    <button class="nav-item" onclick="showPanel('messages',this)"><span class="icon">💬</span> Messages</button>
+    <button class="nav-item" onclick="showPanel('tasks',this)"><span class="icon">✅</span> Action Items</button>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="login.html" class="logout-btn">⬅ Sign Out</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageSubtitle">Welcome back, Marcus. Here's your financial snapshot.</p>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">Books Current — May 2026</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-label">💰 Net Revenue (MTD)</div>
+          <div class="stat-card-val">$<span class="green">84,320</span></div>
+          <div class="stat-card-change up">↑ 12.4% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">💸 Total Expenses (MTD)</div>
+          <div class="stat-card-val">$31,840</div>
+          <div class="stat-card-change down">↑ 3.1% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">📊 Net Profit</div>
+          <div class="stat-card-val">$<span class="green">52,480</span></div>
+          <div class="stat-card-change up">↑ 18.7% margin</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">🏦 Cash Balance</div>
+          <div class="stat-card-val">$<span class="green">148,200</span></div>
+          <div class="stat-card-change up">↑ $22k this month</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-title">Revenue Overview <span>Last 6 months</span></div>
+          <div class="mini-chart" id="miniChart"></div>
+          <div class="chart-labels" id="chartLabels"></div>
+          <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+            <div class="dash-card-title">Recent Transactions <span>Last 7 days</span></div>
+            <div class="tx-list">
+              <div class="tx-item"><div class="tx-icon">🏢</div><div class="tx-info"><div class="tx-name">Office Rent — May</div><div class="tx-date">May 23, 2026</div></div><div class="tx-amount debit">-$3,200</div></div>
+              <div class="tx-item"><div class="tx-icon">💼</div><div class="tx-info"><div class="tx-name">Client Invoice — Acme Inc</div><div class="tx-date">May 22, 2026</div></div><div class="tx-amount credit">+$8,500</div></div>
+              <div class="tx-item"><div class="tx-icon">☁️</div><div class="tx-info"><div class="tx-name">AWS — Cloud Services</div><div class="tx-date">May 21, 2026</div></div><div class="tx-amount debit">-$412</div></div>
+              <div class="tx-item"><div class="tx-icon">💼</div><div class="tx-info"><div class="tx-name">Client Invoice — Sunrise Co</div><div class="tx-date">May 20, 2026</div></div><div class="tx-amount credit">+$12,000</div></div>
+              <div class="tx-item"><div class="tx-icon">🎯</div><div class="tx-info"><div class="tx-name">Ad Spend — Google</div><div class="tx-date">May 19, 2026</div></div><div class="tx-amount debit">-$1,800</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Action Items <span>3 pending</span></div>
+          <div class="task-list" id="dashTasks">
+            <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Upload April bank statement</div><div class="task-due">Due today</div></div>
+            <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Review Q1 tax estimate</div><div class="task-due">Jun 2</div></div>
+            <div class="task-item"><div class="task-check done" onclick="toggleTask(this)"></div><div class="task-text done">Sign engagement letter</div><div class="task-due">✓ Done</div></div>
+            <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Confirm payroll amounts</div><div class="task-due">May 28</div></div>
+            <div class="task-item"><div class="task-check done" onclick="toggleTask(this)"></div><div class="task-text done">Connect QuickBooks account</div><div class="task-due">✓ Done</div></div>
+          </div>
+          <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+            <div class="dash-card-title">Your Bookkeeper</div>
+            <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--navy3);border-radius:12px;">
+              <div style="width:44px;height:44px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--navy);flex-shrink:0;">SL</div>
+              <div>
+                <div style="font-size:14px;font-weight:600;">Sarah Lin, CPA</div>
+                <div style="font-size:12px;color:var(--green);margin-top:2px;">● Online now</div>
+              </div>
+              <button onclick="showPanel('messages',document.querySelector('.nav-item:nth-child(8)'))" style="margin-left:auto;background:var(--green-dim);border:1px solid rgba(0,232,122,0.2);color:var(--green);border-radius:8px;padding:8px 14px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Message →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPLOAD PANEL -->
+    <div class="panel" id="panel-upload">
+      <div class="section-head">
+        <h2>Upload Documents</h2>
+        <p>Share bank statements, receipts, invoices, or any other financial documents with your bookkeeper.</p>
+      </div>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDrag(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <div class="upload-icon">📂</div>
+        <h3>Drop files here or click to browse</h3>
+        <p>Supports PDF, Excel, CSV, JPG, PNG · Max 25MB per file</p>
+        <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Choose Files</button>
+      </div>
+      <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png" onchange="handleFiles(this.files)">
+      <div class="section-head" style="margin-top:32px;">
+        <h2>Uploaded Files</h2>
+        <p>All files are encrypted and shared securely with your bookkeeper.</p>
+      </div>
+      <div class="uploaded-files" id="uploadedFiles">
+        <div class="file-item"><div class="file-icon">📄</div><div class="file-info"><div class="file-name">March_Bank_Statement.pdf</div><div class="file-size">2.4 MB · Uploaded May 18</div></div><div class="file-status uploaded">✓ Received</div></div>
+        <div class="file-item"><div class="file-icon">📊</div><div class="file-info"><div class="file-name">Q1_Expenses.xlsx</div><div class="file-size">448 KB · Uploaded May 10</div></div><div class="file-status uploaded">✓ Received</div></div>
+        <div class="file-item"><div class="file-icon">🧾</div><div class="file-info"><div class="file-name">Vendor_Invoices_April.pdf</div><div class="file-size">1.1 MB · Uploaded May 5</div></div><div class="file-status pending">⏳ Under Review</div></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES PANEL -->
+    <div class="panel" id="panel-messages">
+      <div class="section-head">
+        <h2>Messages</h2>
+        <p>Direct line to your dedicated bookkeeper.</p>
+      </div>
+      <div class="messages-wrap">
+        <div class="msg-threads">
+          <div class="msg-thread-item active">
+            <span class="msg-thread-time">Now</span>
+            <div class="msg-thread-name">Sarah Lin, CPA</div>
+            <div class="msg-thread-preview">I've reviewed your March statement…</div>
+          </div>
+          <div class="msg-thread-item">
+            <span class="msg-thread-time">May 20</span>
+            <div class="msg-thread-name">Ledgerly Support</div>
+            <div class="msg-thread-preview">Your April books are ready for review</div>
+          </div>
+        </div>
+        <div class="msg-chat">
+          <div class="msg-chat-header">
+            <div class="msg-avatar">SL</div>
+            <div>
+              <div class="msg-chat-name">Sarah Lin, CPA</div>
+              <div class="msg-chat-role">Your Dedicated Bookkeeper</div>
+            </div>
+          </div>
+          <div class="msg-body" id="msgBody">
+            <div class="msg-bubble them">
+              <div class="bubble-text">Hi Marcus! I've reviewed your March bank statement — everything looks clean. I categorized the $3,200 payment as office rent. Can you confirm?</div>
+              <div class="bubble-time">Sarah · 2:14 PM</div>
+            </div>
+            <div class="msg-bubble me">
+              <div class="bubble-text">Yes, that's correct! It's the monthly office lease.</div>
+              <div class="bubble-time">You · 2:22 PM</div>
+            </div>
+            <div class="msg-bubble them">
+              <div class="bubble-text">Perfect, noted. Your April books will be ready by end of day Friday. One thing — I'll need the vendor invoices for the Q1 software purchases when you get a chance.</div>
+              <div class="bubble-time">Sarah · 2:25 PM</div>
+            </div>
+          </div>
+          <div class="msg-input-row">
+            <input class="msg-input" id="msgInput" type="text" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()">
+            <button class="msg-send" onclick="sendMsg()">Send →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS PANEL -->
+    <div class="panel" id="panel-tasks">
+      <div class="section-head">
+        <h2>Action Items</h2>
+        <p>Tasks your bookkeeper needs from you to keep your books current.</p>
+      </div>
+      <div class="dash-card">
+        <div class="task-list">
+          <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Upload April bank statement</div><div class="task-due">Due today</div></div>
+          <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Review and approve Q1 tax estimate</div><div class="task-due">Jun 2</div></div>
+          <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Confirm May payroll amounts by month-end</div><div class="task-due">May 28</div></div>
+          <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div class="task-text">Share vendor invoices for Q1 software</div><div class="task-due">Jun 5</div></div>
+          <div class="task-item"><div class="task-check done" onclick="toggleTask(this)"></div><div class="task-text done">Sign engagement letter</div><div class="task-due">✓ Done</div></div>
+          <div class="task-item"><div class="task-check done" onclick="toggleTask(this)"></div><div class="task-text done">Connect QuickBooks account</div><div class="task-due">✓ Done</div></div>
+          <div class="task-item"><div class="task-check done" onclick="toggleTask(this)"></div><div class="task-text done">Upload January & February statements</div><div class="task-due">✓ Done</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS PANEL -->
+    <div class="panel" id="panel-reports">
+      <div class="section-head">
+        <h2>Financial Reports</h2>
+        <p>Your latest reports, always current.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div class="stat-card" style="cursor:pointer;" onclick="alert('Report download coming soon — your bookkeeper will send the PDF directly.')">
+          <div class="stat-card-label">📄 P&L Statement</div>
+          <div style="font-size:14px;color:var(--gray2);margin:8px 0 12px;">April 2026</div>
+          <div style="font-size:12px;color:var(--green);font-weight:600;">⬇ Download PDF</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;" onclick="alert('Report download coming soon — your bookkeeper will send the PDF directly.')">
+          <div class="stat-card-label">🏦 Balance Sheet</div>
+          <div style="font-size:14px;color:var(--gray2);margin:8px 0 12px;">April 2026</div>
+          <div style="font-size:12px;color:var(--green);font-weight:600;">⬇ Download PDF</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;" onclick="alert('Report download coming soon — your bookkeeper will send the PDF directly.')">
+          <div class="stat-card-label">💧 Cash Flow Statement</div>
+          <div style="font-size:14px;color:var(--gray2);margin:8px 0 12px;">Q1 2026</div>
+          <div style="font-size:12px;color:var(--green);font-weight:600;">⬇ Download PDF</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAULT PANEL -->
+    <div class="panel" id="panel-vault">
+      <div class="section-head">
+        <h2>Document Vault</h2>
+        <p>Securely stored files shared between you and your bookkeeper.</p>
+      </div>
+      <div class="uploaded-files">
+        <div class="file-item"><div class="file-icon">📄</div><div class="file-info"><div class="file-name">March_Bank_Statement.pdf</div><div class="file-size">2.4 MB</div></div><div class="file-status uploaded">✓ Received</div></div>
+        <div class="file-item"><div class="file-icon">📊</div><div class="file-info"><div class="file-name">Q1_Expenses.xlsx</div><div class="file-size">448 KB</div></div><div class="file-status uploaded">✓ Received</div></div>
+        <div class="file-item"><div class="file-icon">🧾</div><div class="file-info"><div class="file-name">Vendor_Invoices_April.pdf</div><div class="file-size">1.1 MB</div></div><div class="file-status pending">⏳ Under Review</div></div>
+        <div class="file-item"><div class="file-icon">📄</div><div class="file-info"><div class="file-name">Ledgerly_Engagement_Letter.pdf</div><div class="file-size">310 KB</div></div><div class="file-status uploaded">✓ Signed</div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Build chart
+  const months = ['Dec','Jan','Feb','Mar','Apr','May'];
+  const vals = [61, 68, 72, 75, 79, 84];
+  const chart = document.getElementById('miniChart');
+  const labels = document.getElementById('chartLabels');
+  const max = Math.max(...vals);
+  months.forEach((m, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'mc-bar' + (i === months.length-1 ? ' current' : '');
+    bar.style.height = (vals[i]/max*100)+'%';
+    bar.title = '$'+vals[i]+'k';
+    chart.appendChild(bar);
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-label';
+    lbl.textContent = m;
+    labels.appendChild(lbl);
+  });
+
+  // Panel switching
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-'+id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    const titles = {overview:'Dashboard',upload:'Upload Files',messages:'Messages',tasks:'Action Items',reports:'Reports',vault:'Document Vault'};
+    const subs = {overview:'Welcome back, Marcus. Here\'s your financial snapshot.',upload:'Share files securely with your bookkeeper.',messages:'Chat directly with your dedicated CPA.',tasks:'Items your bookkeeper needs from you.',reports:'Your latest financial reports.',vault:'Your encrypted document library.'};
+    document.getElementById('pageTitle').textContent = titles[id] || id;
+    document.getElementById('pageSubtitle').textContent = subs[id] || '';
+  }
+
+  // Task toggle
+  function toggleTask(el) {
+    el.classList.toggle('done');
+    const text = el.nextElementSibling;
+    text.classList.toggle('done');
+  }
+
+  // File upload
+  function handleDrag(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
+  function handleDragLeave() { document.getElementById('uploadZone').classList.remove('drag'); }
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.remove('drag');
+    handleFiles(e.dataTransfer.files);
+  }
+
+  function handleFiles(files) {
+    const list = document.getElementById('uploadedFiles');
+    Array.from(files).forEach(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      const icons = {pdf:'📄',xlsx:'📊',xls:'📊',csv:'📊',jpg:'🖼',jpeg:'🖼',png:'🖼'};
+      const icon = icons[ext] || '📁';
+      const size = f.size > 1048576 ? (f.size/1048576).toFixed(1)+' MB' : Math.round(f.size/1024)+' KB';
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.style.animation = 'fadeUp 0.3s ease';
+      item.innerHTML = `<div class="file-icon">${icon}</div><div class="file-info"><div class="file-name">${f.name}</div><div class="file-size">${size} · Uploaded just now</div></div><div class="file-status pending">⏳ Uploading…</div><button class="file-delete" onclick="this.parentElement.remove()">✕</button>`;
+      list.prepend(item);
+      // Simulate upload complete
+      setTimeout(() => {
+        item.querySelector('.file-status').className = 'file-status uploaded';
+        item.querySelector('.file-status').textContent = '✓ Received';
+      }, 2000);
+    });
+  }
+
+  // Messaging
+  function sendMsg() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const body = document.getElementById('msgBody');
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble me';
+    bubble.innerHTML = `<div class="bubble-text">${text}</div><div class="bubble-time">You · just now</div>`;
+    body.appendChild(bubble);
+    body.scrollTop = body.scrollHeight;
+    input.value = '';
+    // Auto-reply
+    setTimeout(() => {
+      const reply = document.createElement('div');
+      reply.className = 'msg-bubble them';
+      reply.innerHTML = `<div class="bubble-text">Got it, thanks! I'll take a look and get back to you shortly.</div><div class="bubble-time">Sarah · just now</div>`;
+      body.appendChild(reply);
+      body.scrollTop = body.scrollHeight;
+    }, 1500);
+  }
+
+  // Enter to send
+  document.getElementById('msgInput')?.addEventListener('keydown', e => { if(e.key === 'Enter') sendMsg(); });
+</script>
+</body>
+</html>

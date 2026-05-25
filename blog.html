@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Ledgerly</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+</style>
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy2: #0f1729;
+    --navy3: #151e35;
+    --green: #00e87a;
+    --green2: #00c968;
+    --green-dim: rgba(0,232,122,0.1);
+    --white: #ffffff;
+    --gray: #8892a4;
+    --gray2: #c2cad6;
+    --border: rgba(255,255,255,0.07);
+    --card: rgba(255,255,255,0.03);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Outfit', sans-serif; background: var(--navy); color: var(--white); overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; opacity: 0.4; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 60px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,15,30,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 26px; color: var(--white); text-decoration: none; }
+  .nav-logo span { color: var(--green); }
+  .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+  .nav-links a { color: var(--gray2); text-decoration: none; font-size: 14px; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+  .nav-cta { background: var(--green); color: var(--navy) !important; padding: 10px 22px; border-radius: 8px; font-weight: 600 !important; transition: all 0.2s ease !important; }
+  .nav-cta:hover { background: var(--green2) !important; transform: translateY(-1px); }
+
+  /* PAGE HERO */
+  .page-hero { padding: 160px 60px 70px; text-align: center; position: relative; overflow: hidden; }
+  .page-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,232,122,0.07) 0%, transparent 70%); }
+  .page-hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%); }
+  .page-hero-inner { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+  .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 16px; }
+  .page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 6vw, 72px); font-weight: 700; letter-spacing: -0.5px; line-height: 1.05; margin-bottom: 20px; animation: fadeUp 0.6s ease both; }
+  .page-hero p { font-size: 17px; color: var(--gray); line-height: 1.7; font-weight: 300; animation: fadeUp 0.6s 0.1s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 40px 60px 0; }
+  .filter-btn { padding: 8px 20px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--gray2); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .filter-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+  .filter-btn.active { background: var(--green); border-color: var(--green); color: var(--navy); font-weight: 600; }
+
+  /* BLOG LAYOUT */
+  .blog-section { padding: 60px 60px 100px; max-width: 1260px; margin: 0 auto; }
+
+  /* FEATURED POST */
+  .featured-post { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--card); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; margin-bottom: 48px; transition: border-color 0.3s; text-decoration: none; color: inherit; }
+  .featured-post:hover { border-color: rgba(0,232,122,0.2); }
+  .featured-thumb { background: linear-gradient(135deg, #0a1628 0%, #0f2040 50%, #0a1820 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; min-height: 320px; position: relative; }
+  .featured-thumb::after { content: 'FEATURED'; position: absolute; top: 24px; left: 24px; background: var(--green); color: var(--navy); font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 2px; padding: 5px 12px; border-radius: 100px; }
+  .featured-content { padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+  .post-tag { display: inline-block; background: var(--green-dim); color: var(--green); font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 16px; }
+  .featured-content h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(24px, 3vw, 38px); font-weight: 700; letter-spacing: -0.3px; line-height: 1.15; margin-bottom: 16px; }
+  .featured-content p { font-size: 15px; color: var(--gray); line-height: 1.7; font-weight: 300; margin-bottom: 28px; }
+  .post-meta { display: flex; gap: 20px; align-items: center; font-size: 13px; color: var(--gray); }
+  .post-meta .author { display: flex; align-items: center; gap: 8px; }
+  .author-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--navy); }
+  .read-more { margin-left: auto; color: var(--green); font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 4px; }
+
+  /* POSTS GRID */
+  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .post-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; transition: border-color 0.3s, transform 0.3s; text-decoration: none; color: inherit; display: flex; flex-direction: column; opacity: 0; transform: translateY(24px); }
+  .post-card.visible { opacity: 1; transform: translateY(0); transition: border-color 0.3s, transform 0.7s ease, opacity 0.7s ease; }
+  .post-card:hover { border-color: rgba(0,232,122,0.2); transform: translateY(-4px); }
+  .post-thumb { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 52px; }
+  .post-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+  .post-body h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; letter-spacing: -0.2px; }
+  .post-body p { font-size: 13px; color: var(--gray); line-height: 1.65; font-weight: 300; flex: 1; margin-bottom: 20px; }
+  .post-footer { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--gray); border-top: 1px solid var(--border); padding-top: 16px; margin-top: auto; }
+  .post-footer .read-link { color: var(--green); font-weight: 600; text-decoration: none; }
+
+  /* FOOTER */
+  footer { background: var(--navy); border-top: 1px solid var(--border); padding: 60px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 48px; border-bottom: 1px solid var(--border); }
+  .footer-brand p { font-size: 14px; color: var(--gray); line-height: 1.7; margin-top: 16px; font-weight: 300; max-width: 260px; }
+  .footer-col h5 { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray2); margin-bottom: 20px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-col a { font-size: 14px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--green); }
+  .footer-bottom { max-width: 1200px; margin: 32px auto 0; display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: rgba(0,232,122,0.3); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .page-hero, .filter-bar { padding-left: 24px; padding-right: 24px; }
+    .blog-section { padding: 40px 24px 80px; }
+    .featured-post { grid-template-columns: 1fr; }
+    .featured-thumb { min-height: 200px; }
+    .posts-grid { grid-template-columns: 1fr; }
+    footer { padding: 40px 24px; }
+    .footer-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Ledger<span>ly</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#how">How it Works</a></li>
+    <li><a href="resources.html">Free Resources</a></li>
+    <li><a href="blog.html" class="active">Blog</a></li>
+    <li><a href="index.html#pricing">Pricing</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="login.html" class="nav-cta">Client Login →</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-grid"></div>
+  <div class="page-hero-inner">
+    <div class="section-label">✦ Ledgerly Blog</div>
+    <h1>Insights for <span style="color:var(--green)">growing</span> businesses</h1>
+    <p>Practical financial wisdom, tax tips, and bookkeeping guides written by real accountants — not robots.</p>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">All Posts</button>
+  <button class="filter-btn" data-filter="tax">Tax</button>
+  <button class="filter-btn" data-filter="bookkeeping">Bookkeeping</button>
+  <button class="filter-btn" data-filter="growth">Business Growth</button>
+  <button class="filter-btn" data-filter="payroll">Payroll</button>
+</div>
+
+<!-- BLOG CONTENT -->
+<div class="blog-section">
+
+  <!-- FEATURED -->
+  <a href="#" class="featured-post">
+    <div class="featured-thumb">📊</div>
+    <div class="featured-content">
+      <div class="post-tag">Tax</div>
+      <h2>The 2026 Tax Changes Every Small Business Owner Must Know</h2>
+      <p>New thresholds, updated deduction rules, and what the latest IRS guidance means for your bottom line this filing season. We break it all down in plain English.</p>
+      <div class="post-meta">
+        <div class="author"><div class="author-avatar">SL</div> Sarah L., CPA</div>
+        <span>·</span>
+        <span>May 14, 2026</span>
+        <span>·</span>
+        <span>8 min read</span>
+        <span class="read-more">Read article →</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- POSTS GRID -->
+  <div class="posts-grid" id="postsGrid">
+
+    <a href="#" class="post-card" data-category="bookkeeping">
+      <div class="post-thumb" style="background:linear-gradient(135deg,#0a1628,#0f2040);">📚</div>
+      <div class="post-body">
+        <div class="post-tag">Bookkeeping</div>
+        <h3>Why Your Books Are Always Wrong (And How to Fix It)</h3>
+        <p>The 5 most common bookkeeping mistakes we see — and the exact process to catch and correct them before they become a real problem.</p>
+        <div class="post-footer">
+          <span>April 28, 2026 · 6 min</span>
+          <span class="read-link">Read →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#" class="post-card" data-category="growth">
+      <div class="post-thumb" style="background:linear-gradient(135deg,#0a2018,#0a1628);">🚀</div>
+      <div class="post-body">
+        <div class="post-tag">Business Growth</div>
+        <h3>What Your P&L Statement Is Actually Telling You</h3>
+        <p>Most owners glance at the bottom line and move on. Here's what the rest of the numbers mean — and the growth levers hiding in plain sight.</p>
+        <div class="post-footer">
+          <span>April 15, 2026 · 7 min</span>
+          <span class="read-link">Read →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#" class="post-card" data-category="payroll">
+      <div class="post-thumb" style="background:linear-gradient(135deg,#180a28,#0a0f1e);">💸</div>
+      <div class="post-body">
+        <div class="post-tag">Payroll</div>
+        <h3>Contractor vs. Employee: The IRS Rules in 2026</h3>
+        <p>Misclassifying workers is one of the most expensive mistakes a small business can make. Here's exactly how to get it right.</p>
+        <div class="post-footer">
+          <span>April 3, 2026 · 5 min</span>
+          <span class="read-link">Read →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#" class="post-card" data-category="tax">
+      <div class="post-thumb" style="background:linear-gradient(135deg,#0a1820,#0f2030);">🧾</div>
+      <div class="post-body">
+        <div class="post-tag">Tax</div>
+        <h3>Quarterly Estimated Taxes: A No-Stress Guide</h3>
+        <p>How to calculate, pay, and never miss a quarterly deadline — with a simple formula that keeps you penalty-free all year.</p>
+        <div class="post-footer">
+          <span>March 20, 2026 · 4 min</span>
+          <span class="read-link">Read →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#" class="post-card" data-category="bookkeeping">
+      <div class="post-thumb" style="background:linear-gradient(135deg,#201008,#0a0f1e);">🔍</div>
+      <div class="post-body">
+        <div class="post-tag">Bookkeeping</div>
+        <h3>Cash vs. Accrual Accounting: Which One Fits Your Business?</h3>
+        <p>The difference matters more than you think. We explain both methods in plain English and tell you exactly which to pick at each stage of growth.</p>
+        <div class="post-footer">
+          <span>March 7, 2026 · 6 min</span>
+          <span class="read-link">Read →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="#" class="post-card" data-category="growth">
+      <div class="post-thumb" style="background:linear-gradient(135deg,#0a2010,#0a1628);">💡</div>
+      <div class="post-body">
+        <div class="post-tag">Business Growth</div>
+        <h3>How to Raise Capital Without Losing Control</h3>
+        <p>From SBA loans to angel investors — a practical guide to funding your growth while protecting your equity and your vision.</p>
+        <div class="post-footer">
+          <span>Feb 21, 2026 · 9 min</span>
+          <span class="read-link">Read →</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo">Ledger<span>ly</span></a>
+      <p>Expert bookkeeping and financial clarity for ambitious businesses. Real-time books, real growth.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <ul>
+        <li><a href="index.html#services">Bookkeeping</a></li>
+        <li><a href="index.html#services">Tax Preparation</a></li>
+        <li><a href="index.html#services">Payroll</a></li>
+        <li><a href="index.html#services">CFO Advisory</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="resources.html">Free Resources</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Clients</h5>
+      <ul>
+        <li><a href="login.html">Client Login</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="index.html#contact">Get Started</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Ledgerly. All rights reserved.</span>
+    <span>Built with ♥ for ambitious businesses</span>
+  </div>
+</footer>
+
+<script>
+  // Filter
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.post-card').forEach(card => {
+        card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+      });
+    });
+  });
+
+  // Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 100);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.post-card').forEach(c => obs.observe(c));
+
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.background =
+      window.scrollY > 50 ? 'rgba(10,15,30,0.97)' : 'rgba(10,15,30,0.85)';
+  });
+</script>
+</body>
+</html>

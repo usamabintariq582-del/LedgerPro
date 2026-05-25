@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Resources — Ledgerly</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+</style>
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy2: #0f1729;
+    --navy3: #151e35;
+    --green: #00e87a;
+    --green2: #00c968;
+    --green-dim: rgba(0,232,122,0.1);
+    --white: #ffffff;
+    --gray: #8892a4;
+    --gray2: #c2cad6;
+    --border: rgba(255,255,255,0.07);
+    --card: rgba(255,255,255,0.03);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Outfit', sans-serif; background: var(--navy); color: var(--white); overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 999; opacity: 0.4; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 60px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,15,30,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 26px; color: var(--white); text-decoration: none; }
+  .nav-logo span { color: var(--green); }
+  .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+  .nav-links a { color: var(--gray2); text-decoration: none; font-size: 14px; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+  .nav-cta { background: var(--green); color: var(--navy) !important; padding: 10px 22px; border-radius: 8px; font-weight: 600 !important; font-size: 14px !important; transition: all 0.2s ease !important; }
+  .nav-cta:hover { background: var(--green2) !important; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,232,122,0.25) !important; }
+
+  /* PAGE HERO */
+  .page-hero { padding: 160px 60px 80px; text-align: center; position: relative; overflow: hidden; }
+  .page-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,232,122,0.08) 0%, transparent 70%); }
+  .page-hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%); }
+  .page-hero-inner { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+  .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 16px; }
+  .page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 6vw, 72px); font-weight: 700; letter-spacing: -0.5px; line-height: 1.05; margin-bottom: 20px; animation: fadeUp 0.6s ease both; }
+  .page-hero p { font-size: 18px; color: var(--gray); line-height: 1.7; font-weight: 300; animation: fadeUp 0.6s 0.1s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 60px 48px; }
+  .filter-btn { padding: 8px 20px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--gray2); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .filter-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+  .filter-btn.active { background: var(--green); border-color: var(--green); color: var(--navy); font-weight: 600; }
+
+  /* RESOURCES GRID */
+  .resources-section { padding: 0 60px 100px; }
+  .resources-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .resource-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; transition: border-color 0.3s, transform 0.3s; opacity: 0; transform: translateY(24px); }
+  .resource-card.visible { opacity: 1; transform: translateY(0); transition: border-color 0.3s, transform 0.7s ease, opacity 0.7s ease; }
+  .resource-card:hover { border-color: rgba(0,232,122,0.2); transform: translateY(-4px); }
+  .resource-thumb { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 52px; position: relative; overflow: hidden; }
+  .resource-thumb::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(10,15,30,0.7) 100%); }
+  .resource-body { padding: 24px; }
+  .resource-tag { display: inline-block; background: var(--green-dim); color: var(--green); font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
+  .resource-body h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+  .resource-body p { font-size: 13px; color: var(--gray); line-height: 1.65; font-weight: 300; margin-bottom: 20px; }
+  .resource-meta { display: flex; gap: 16px; margin-bottom: 20px; }
+  .resource-meta span { font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 4px; }
+  .resource-gate { display: flex; flex-direction: column; gap: 10px; }
+  .resource-email { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .resource-email:focus { border-color: rgba(0,232,122,0.4); }
+  .resource-email::placeholder { color: var(--gray); }
+  .resource-dl-btn { width: 100%; padding: 11px; background: rgba(0,232,122,0.1); border: 1px solid rgba(0,232,122,0.15); border-radius: 8px; color: var(--gray); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: not-allowed; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .resource-dl-btn.unlocked { background: var(--green); border-color: var(--green); color: var(--navy); cursor: pointer; }
+  .resource-dl-btn.unlocked:hover { background: var(--green2); box-shadow: 0 6px 20px rgba(0,232,122,0.3); }
+  .resource-dl-btn.sent { background: var(--green2); border-color: var(--green2); color: var(--navy); cursor: default; }
+
+  /* FEATURED RESOURCE */
+  .featured-resource { max-width: 1200px; margin: 0 auto 60px; padding: 48px; background: linear-gradient(135deg, rgba(0,232,122,0.07) 0%, var(--card) 60%); border: 1px solid rgba(0,232,122,0.2); border-radius: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .featured-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: var(--navy); border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+  .featured-resource h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.5vw, 44px); font-weight: 700; letter-spacing: -0.3px; line-height: 1.1; margin-bottom: 16px; }
+  .featured-resource p { font-size: 15px; color: var(--gray); line-height: 1.7; font-weight: 300; margin-bottom: 28px; }
+  .featured-visual { background: var(--navy3); border: 1px solid var(--border); border-radius: 16px; padding: 32px; font-size: 64px; text-align: center; min-height: 200px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .featured-visual-label { font-size: 13px; color: var(--gray); font-weight: 300; }
+
+  /* NEWSLETTER STRIP */
+  .newsletter { padding: 80px 60px; background: var(--navy2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .newsletter-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+  .newsletter h3 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; margin-bottom: 12px; }
+  .newsletter p { font-size: 15px; color: var(--gray); margin-bottom: 28px; font-weight: 300; }
+  .newsletter-form { display: flex; gap: 12px; }
+  .newsletter-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 13px 18px; color: var(--white); font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .newsletter-input:focus { border-color: rgba(0,232,122,0.4); }
+  .newsletter-input::placeholder { color: var(--gray); }
+  .newsletter-btn { padding: 13px 28px; background: var(--green); color: var(--navy); border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .newsletter-btn:hover { background: var(--green2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,232,122,0.3); }
+
+  /* FOOTER */
+  footer { background: var(--navy); border-top: 1px solid var(--border); padding: 60px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 48px; border-bottom: 1px solid var(--border); }
+  .footer-brand p { font-size: 14px; color: var(--gray); line-height: 1.7; margin-top: 16px; font-weight: 300; max-width: 260px; }
+  .footer-col h5 { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray2); margin-bottom: 20px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-col a { font-size: 14px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--green); }
+  .footer-bottom { max-width: 1200px; margin: 32px auto 0; display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: rgba(0,232,122,0.3); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .page-hero, .resources-section, .newsletter { padding-left: 24px; padding-right: 24px; }
+    .filter-bar { padding-left: 24px; padding-right: 24px; }
+    .resources-grid { grid-template-columns: 1fr; }
+    .featured-resource { grid-template-columns: 1fr; gap: 32px; }
+    .newsletter-form { flex-direction: column; }
+    footer { padding: 40px 24px; }
+    .footer-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Ledger<span>ly</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#how">How it Works</a></li>
+    <li><a href="resources.html" class="active">Free Resources</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#pricing">Pricing</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="login.html" class="nav-cta">Client Login →</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-grid"></div>
+  <div class="page-hero-inner">
+    <div class="section-label">✦ Free Resources</div>
+    <h1>Tools to grow<br>your <span style="color:var(--green)">financial clarity</span></h1>
+    <p>Free guides, templates, and checklists built for ambitious business owners. Download instantly — just enter your email.</p>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">All Resources</button>
+  <button class="filter-btn" data-filter="template">Templates</button>
+  <button class="filter-btn" data-filter="guide">Guides</button>
+  <button class="filter-btn" data-filter="checklist">Checklists</button>
+  <button class="filter-btn" data-filter="calculator">Calculators</button>
+</div>
+
+<!-- FEATURED RESOURCE -->
+<div class="resources-section" style="padding-bottom:0;">
+  <div class="featured-resource">
+    <div>
+      <div class="featured-badge">⭐ Most Downloaded</div>
+      <h2>The Complete Small Business Bookkeeping Starter Kit</h2>
+      <p>Everything you need to set up clean books from day one — including a chart of accounts template, monthly reconciliation checklist, and our 10-step onboarding guide used by 500+ businesses.</p>
+      <div class="resource-gate" style="max-width:400px;">
+        <input type="email" class="resource-email featured-email" placeholder="Your email address">
+        <button class="resource-dl-btn featured-dl" disabled>🔒 Enter Email to Download Free Kit</button>
+      </div>
+    </div>
+    <div class="featured-visual">
+      <div>📦</div>
+      <div class="featured-visual-label">3 files · PDF + Excel</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESOURCES GRID -->
+<div class="resources-section">
+  <div class="resources-grid">
+
+    <div class="resource-card" data-category="template">
+      <div class="resource-thumb" style="background: linear-gradient(135deg, #0a1628, #0f2040);">📊</div>
+      <div class="resource-body">
+        <div class="resource-tag">Template</div>
+        <h3>Monthly Cash Flow Tracker</h3>
+        <p>A plug-and-play Excel template to track every dollar in and out, with automatic summaries and a 3-month rolling view.</p>
+        <div class="resource-meta">
+          <span>📄 Excel</span>
+          <span>⏱ 2 min setup</span>
+        </div>
+        <div class="resource-gate">
+          <input type="email" class="resource-email" placeholder="your@email.com">
+          <button class="resource-dl-btn" disabled>🔒 Enter Email to Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="resource-card" data-category="guide">
+      <div class="resource-thumb" style="background: linear-gradient(135deg, #0a2018, #0a1628);">💡</div>
+      <div class="resource-body">
+        <div class="resource-tag">Guide</div>
+        <h3>Tax Deductions Most Business Owners Miss</h3>
+        <p>A plain-English guide to 27 commonly overlooked deductions — from home office rules to vehicle expenses and beyond.</p>
+        <div class="resource-meta">
+          <span>📄 PDF</span>
+          <span>📖 12 pages</span>
+        </div>
+        <div class="resource-gate">
+          <input type="email" class="resource-email" placeholder="your@email.com">
+          <button class="resource-dl-btn" disabled>🔒 Enter Email to Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="resource-card" data-category="checklist">
+      <div class="resource-thumb" style="background: linear-gradient(135deg, #180a28, #0a0f1e);">✅</div>
+      <div class="resource-body">
+        <div class="resource-tag">Checklist</div>
+        <h3>Year-End Close Checklist</h3>
+        <p>The exact 32-step checklist our bookkeepers use to close the books each December. Never miss a step again.</p>
+        <div class="resource-meta">
+          <span>📄 PDF</span>
+          <span>🗂 32 items</span>
+        </div>
+        <div class="resource-gate">
+          <input type="email" class="resource-email" placeholder="your@email.com">
+          <button class="resource-dl-btn" disabled>🔒 Enter Email to Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="resource-card" data-category="calculator">
+      <div class="resource-thumb" style="background: linear-gradient(135deg, #0a1820, #0f2030);">🧮</div>
+      <div class="resource-body">
+        <div class="resource-tag">Calculator</div>
+        <h3>Profit Margin Calculator</h3>
+        <p>Instantly calculate gross, operating, and net profit margins. Includes benchmarks by industry so you know where you stand.</p>
+        <div class="resource-meta">
+          <span>📄 Excel</span>
+          <span>⚡ Instant results</span>
+        </div>
+        <div class="resource-gate">
+          <input type="email" class="resource-email" placeholder="your@email.com">
+          <button class="resource-dl-btn" disabled>🔒 Enter Email to Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="resource-card" data-category="guide">
+      <div class="resource-thumb" style="background: linear-gradient(135deg, #201008, #0a0f1e);">📈</div>
+      <div class="resource-body">
+        <div class="resource-tag">Guide</div>
+        <h3>How to Read Your P&L Statement</h3>
+        <p>A beginner-friendly guide to understanding your Profit & Loss — what every line means, and what to do about it.</p>
+        <div class="resource-meta">
+          <span>📄 PDF</span>
+          <span>📖 8 pages</span>
+        </div>
+        <div class="resource-gate">
+          <input type="email" class="resource-email" placeholder="your@email.com">
+          <button class="resource-dl-btn" disabled>🔒 Enter Email to Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="resource-card" data-category="checklist">
+      <div class="resource-thumb" style="background: linear-gradient(135deg, #0a2010, #0a1628);">🚀</div>
+      <div class="resource-body">
+        <div class="resource-tag">Checklist</div>
+        <h3>New Business Financial Setup Checklist</h3>
+        <p>Starting out? This checklist walks you through every financial account, tool, and process to set up in your first 30 days.</p>
+        <div class="resource-meta">
+          <span>📄 PDF</span>
+          <span>🗂 24 items</span>
+        </div>
+        <div class="resource-gate">
+          <input type="email" class="resource-email" placeholder="your@email.com">
+          <button class="resource-dl-btn" disabled>🔒 Enter Email to Download</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="newsletter">
+  <div class="newsletter-inner">
+    <div class="section-label" style="justify-content:center;">✦ Stay Sharp</div>
+    <h3>Monthly financial tips, free.</h3>
+    <p>Join 2,400+ business owners who get our monthly newsletter — tax tips, bookkeeping hacks, and financial insights.</p>
+    <div class="newsletter-form">
+      <input type="email" class="newsletter-input" id="nlEmail" placeholder="your@email.com">
+      <button class="newsletter-btn" id="nlBtn">Subscribe Free →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo">Ledger<span>ly</span></a>
+      <p>Expert bookkeeping and financial clarity for ambitious businesses. Real-time books, real growth.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <ul>
+        <li><a href="index.html#services">Bookkeeping</a></li>
+        <li><a href="index.html#services">Tax Preparation</a></li>
+        <li><a href="index.html#services">Payroll</a></li>
+        <li><a href="index.html#services">CFO Advisory</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="resources.html">Free Resources</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Clients</h5>
+      <ul>
+        <li><a href="login.html">Client Login</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="index.html#contact">Get Started</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Ledgerly. All rights reserved.</span>
+    <span>Built with ♥ for ambitious businesses</span>
+  </div>
+</footer>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // EmailJS — replace with your actual IDs
+  const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+  const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+  const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.resource-card').forEach(card => {
+        if (filter === 'all' || card.dataset.category === filter) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Scroll reveal cards
+  const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 100);
+        cardObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.resource-card').forEach(c => cardObserver.observe(c));
+
+  // Resource gate logic
+  function setupResourceCard(emailEl, btnEl, resourceName) {
+    emailEl.addEventListener('input', () => {
+      const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim());
+      if (valid) {
+        btnEl.disabled = false;
+        btnEl.classList.add('unlocked');
+        btnEl.textContent = '⬇ Download Free — ' + resourceName;
+      } else {
+        btnEl.disabled = true;
+        btnEl.classList.remove('unlocked');
+        btnEl.textContent = '🔒 Enter Email to Download';
+      }
+    });
+
+    btnEl.addEventListener('click', async () => {
+      if (btnEl.disabled || btnEl.classList.contains('sent')) return;
+      btnEl.textContent = 'Sending...';
+
+      // Send to Formspree (captures the lead for you)
+      fetch('https://formspree.io/f/xpwzgdjv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailEl.value.trim(), resource: resourceName })
+      });
+
+      // Optional: send delivery email via EmailJS
+      // emailjs.init(EMAILJS_PUBLIC_KEY);
+      // await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      //   to_email: emailEl.value.trim(),
+      //   resource_name: resourceName,
+      // });
+
+      btnEl.textContent = '✓ Check Your Inbox!';
+      btnEl.classList.remove('unlocked');
+      btnEl.classList.add('sent');
+      btnEl.disabled = true;
+    });
+  }
+
+  // Wire up all regular cards
+  document.querySelectorAll('.resource-card').forEach(card => {
+    const emailEl = card.querySelector('.resource-email');
+    const btnEl = card.querySelector('.resource-dl-btn');
+    const title = card.querySelector('h3').textContent;
+    setupResourceCard(emailEl, btnEl, title);
+  });
+
+  // Wire up featured
+  const featEmail = document.querySelector('.featured-email');
+  const featBtn = document.querySelector('.featured-dl');
+  featEmail.addEventListener('input', () => {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(featEmail.value.trim());
+    featBtn.disabled = !valid;
+    if (valid) {
+      featBtn.classList.add('unlocked');
+      featBtn.textContent = '⬇ Download Complete Starter Kit';
+    } else {
+      featBtn.classList.remove('unlocked');
+      featBtn.textContent = '🔒 Enter Email to Download Free Kit';
+    }
+  });
+  featBtn.addEventListener('click', () => {
+    if (featBtn.disabled) return;
+    fetch('https://formspree.io/f/xpwzgdjv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: featEmail.value.trim(), resource: 'Complete Bookkeeping Starter Kit' })
+    });
+    featBtn.textContent = '✓ Check Your Inbox!';
+    featBtn.classList.remove('unlocked');
+    featBtn.disabled = true;
+  });
+
+  // Newsletter
+  document.getElementById('nlBtn').addEventListener('click', () => {
+    const email = document.getElementById('nlEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('nlBtn').textContent = '⚠ Valid email please';
+      setTimeout(() => { document.getElementById('nlBtn').textContent = 'Subscribe Free →'; }, 2000);
+      return;
+    }
+    fetch('https://formspree.io/f/xpwzgdjv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, _subject: 'New Newsletter Signup' })
+    });
+    document.getElementById('nlBtn').textContent = '✓ You\'re in!';
+    document.getElementById('nlBtn').style.background = '#00c968';
+  });
+
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.background =
+      window.scrollY > 50 ? 'rgba(10,15,30,0.97)' : 'rgba(10,15,30,0.85)';
+  });
+</script>
+</body>
+</html>
