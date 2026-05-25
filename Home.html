@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledgerly — Real-Time Bookkeeping for E-Commerce, SaaS & Startups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a0f1e;
+  --navy2: #0f1729;
+  --navy3: #151e35;
+  --green: #00e87a;
+  --green2: #00c968;
+  --green-dim: rgba(0,232,122,0.1);
+  --white: #ffffff;
+  --gray: #8892a4;
+  --gray2: #c2cad6;
+  --border: rgba(255,255,255,0.07);
+  --card: rgba(255,255,255,0.03);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--navy);color:var(--white);overflow-x:hidden;}
+
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.5;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,15,30,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:all 0.3s;}
+nav.scrolled{background:rgba(10,15,30,0.97);box-shadow:0 4px 40px rgba(0,0,0,0.4);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:26px;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--green);}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{color:var(--gray2);text-decoration:none;font-size:14px;font-weight:400;transition:color 0.2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{background:var(--green);color:var(--navy)!important;padding:10px 22px;border-radius:100px;font-weight:700!important;font-size:13px!important;transition:all 0.2s ease!important;letter-spacing:0.3px;}
+.nav-cta:hover{background:var(--green2)!important;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,232,122,0.3)!important;}
+.nav-wa{display:flex;align-items:center;gap:6px;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.3);color:#25d366!important;padding:9px 18px;border-radius:100px;font-size:13px!important;font-weight:600!important;}
+.nav-wa:hover{background:rgba(37,211,102,0.25)!important;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:120px 60px 80px;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(0,232,122,0.1) 0%,transparent 65%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 90% 90% at 50% 50%,black 20%,transparent 100%);}
+.hero-orb{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,232,122,0.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:orbPulse 6s ease-in-out infinite;}
+@keyframes orbPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.6;}50%{transform:translate(-50%,-50%) scale(1.15);opacity:1;}}
+
+/* FLOATING ELEMENTS */
+.floater{position:absolute;font-size:28px;animation:float linear infinite;opacity:0.6;pointer-events:none;}
+@keyframes float{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:0.6;}90%{opacity:0.6;}100%{transform:translateY(-100px) rotate(720deg);opacity:0;}}
+
+.hero-inner{position:relative;z-index:2;text-align:center;max-width:900px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,232,122,0.1);border:1px solid rgba(0,232,122,0.25);border-radius:100px;padding:8px 18px;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:28px;animation:fadeUp 0.6s ease both;}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,8vw,96px);font-weight:700;letter-spacing:-2px;line-height:0.95;margin-bottom:28px;animation:fadeUp 0.6s 0.1s ease both;}
+.hero h1 .word-rotate{display:inline-block;color:var(--green);position:relative;}
+.hero h1 .static{display:block;color:var(--white);}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--gray);line-height:1.7;font-weight:300;max-width:600px;margin:0 auto 40px;animation:fadeUp 0.6s 0.2s ease both;}
+.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.3s ease both;}
+.btn-primary{background:var(--green);color:var(--navy);border:none;border-radius:100px;padding:16px 36px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.3s;letter-spacing:0.5px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--green2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,232,122,0.4);}
+.btn-secondary{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:16px 36px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);}
+.btn-wa{background:rgba(37,211,102,0.12);color:#25d366;border:1px solid rgba(37,211,102,0.3);border-radius:100px;padding:16px 36px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+.btn-wa:hover{background:rgba(37,211,102,0.22);transform:translateY(-2px);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* STATS MARQUEE */
+.marquee-wrap{padding:28px 0;background:var(--navy2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;position:relative;}
+.marquee-track{display:flex;gap:60px;animation:marquee 20s linear infinite;width:max-content;}
+.marquee-item{display:flex;align-items:center;gap:12px;white-space:nowrap;font-size:14px;color:var(--gray2);font-weight:500;}
+.marquee-item span{color:var(--green);font-weight:700;}
+.marquee-dot{width:4px;height:4px;background:var(--green);border-radius:50%;opacity:0.5;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* SECTION COMMONS */
+section{padding:100px 60px;}
+.section-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--green);margin-bottom:16px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,64px);font-weight:700;letter-spacing:-1px;line-height:1.05;margin-bottom:20px;}
+.section-sub{font-size:17px;color:var(--gray);line-height:1.7;font-weight:300;max-width:560px;}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.8s ease,transform 0.8s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* SERVICES TABS */
+.services{background:var(--navy2);}
+.services-inner{max-width:1200px;margin:0 auto;}
+.services-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:48px;overflow-x:auto;}
+.s-tab{padding:14px 28px;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Outfit',sans-serif;}
+.s-tab:hover{color:var(--white);}
+.s-tab.active{color:var(--green);border-bottom-color:var(--green);}
+.s-panels{}
+.s-panel{display:none;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.s-panel.active{display:grid;}
+.s-panel-text h3{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,48px);font-weight:700;margin-bottom:16px;letter-spacing:-0.5px;}
+.s-panel-text p{font-size:15px;color:var(--gray);line-height:1.8;margin-bottom:28px;font-weight:300;}
+.s-features{display:flex;flex-direction:column;gap:12px;margin-bottom:32px;}
+.s-feat{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gray2);}
+.s-feat::before{content:'✓';color:var(--green);font-weight:700;font-size:14px;width:20px;flex-shrink:0;}
+.s-visual{background:var(--navy3);border:1px solid var(--border);border-radius:20px;padding:32px;min-height:280px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-size:52px;position:relative;overflow:hidden;}
+.s-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,232,122,0.06) 0%,transparent 70%);}
+.s-visual-label{font-size:13px;color:var(--gray);font-weight:300;position:relative;z-index:1;}
+
+/* PRICING */
+.pricing{background:var(--navy);}
+.pricing-inner{max-width:1100px;margin:0 auto;}
+.pricing-header{text-align:center;margin-bottom:60px;}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;position:relative;transition:all 0.3s;}
+.price-card:hover{border-color:rgba(0,232,122,0.2);transform:translateY(-4px);}
+.price-card.featured{background:linear-gradient(135deg,rgba(0,232,122,0.08) 0%,var(--card) 100%);border-color:rgba(0,232,122,0.3);}
+.price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--navy);font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 16px;border-radius:100px;}
+.price-name{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray);margin-bottom:8px;}
+.price-desc{font-size:13px;color:var(--gray);font-weight:300;margin-bottom:24px;line-height:1.6;}
+.price-from{font-size:12px;color:var(--gray);margin-bottom:4px;}
+.price-amount{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:700;letter-spacing:-1px;color:var(--white);margin-bottom:4px;}
+.price-amount span{font-size:18px;font-weight:400;color:var(--gray);}
+.price-period{font-size:12px;color:var(--gray);margin-bottom:28px;}
+.price-btn{width:100%;padding:13px;border-radius:100px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block;text-align:center;letter-spacing:0.3px;}
+.price-btn-primary{background:var(--green);color:var(--navy);border:none;}
+.price-btn-primary:hover{background:var(--green2);box-shadow:0 8px 24px rgba(0,232,122,0.3);}
+.price-btn-secondary{background:transparent;color:var(--white);border:1px solid var(--border);}
+.price-btn-secondary:hover{border-color:rgba(255,255,255,0.3);}
+.price-divider{height:1px;background:var(--border);margin:24px 0;}
+.price-features{display:flex;flex-direction:column;gap:10px;}
+.price-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray2);}
+.price-feat::before{content:'✓';color:var(--green);font-weight:700;font-size:12px;flex-shrink:0;}
+.pricing-note{text-align:center;margin-top:32px;font-size:14px;color:var(--gray);}
+.pricing-note a{color:var(--green);text-decoration:none;font-weight:600;}
+
+/* STATS */
+.stats-section{background:var(--navy2);text-align:center;}
+.stats-big{font-family:'Cormorant Garamond',serif;font-size:clamp(60px,12vw,140px);font-weight:700;letter-spacing:-4px;color:var(--green);line-height:1;margin-bottom:16px;}
+.stats-sub{font-size:18px;color:var(--gray);font-weight:300;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:800px;margin:60px auto 0;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--white);letter-spacing:-1px;}
+.stat-label{font-size:13px;color:var(--gray);margin-top:4px;}
+
+/* TOOLS */
+.tools-strip{background:var(--navy3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:40px 60px;}
+.tools-inner{max-width:1000px;margin:0 auto;text-align:center;}
+.tools-label{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:28px;}
+.tools-logos{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;}
+.tool-logo{font-size:14px;font-weight:700;color:var(--gray);display:flex;align-items:center;gap:8px;opacity:0.6;transition:opacity 0.2s;}
+.tool-logo:hover{opacity:1;}
+
+/* FAQ */
+.faq{background:var(--navy);}
+.faq-inner{max-width:800px;margin:0 auto;}
+.faq-title{font-family:'Cormorant Garamond',serif;font-size:clamp(60px,10vw,120px);font-weight:700;letter-spacing:-3px;color:var(--green);text-align:center;margin-bottom:60px;line-height:1;}
+.faq-item{border-bottom:1px solid var(--border);overflow:hidden;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:24px 0;cursor:pointer;font-size:16px;font-weight:500;color:var(--white);transition:color 0.2s;gap:20px;}
+.faq-q:hover{color:var(--green);}
+.faq-num{font-size:12px;color:var(--gray);font-weight:400;width:28px;flex-shrink:0;}
+.faq-arrow{font-size:18px;color:var(--green);transition:transform 0.3s;flex-shrink:0;}
+.faq-item.open .faq-arrow{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.4s ease;font-size:14px;color:var(--gray);line-height:1.8;font-weight:300;}
+.faq-item.open .faq-a{max-height:200px;padding-bottom:24px;}
+
+/* CTA BAND */
+.cta-band{padding:100px 60px;background:linear-gradient(135deg,rgba(0,232,122,0.08) 0%,var(--navy2) 100%);border-top:1px solid rgba(0,232,122,0.1);border-bottom:1px solid rgba(0,232,122,0.1);text-align:center;}
+.cta-band h2{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,6vw,72px);font-weight:700;letter-spacing:-1px;margin-bottom:20px;}
+.cta-band p{font-size:17px;color:var(--gray);margin-bottom:40px;font-weight:300;}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+/* FOOTER */
+footer{background:var(--navy);border-top:1px solid var(--border);padding:60px;}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;padding-bottom:48px;border-bottom:1px solid var(--border);}
+.footer-brand p{font-size:14px;color:var(--gray);line-height:1.7;margin-top:16px;font-weight:300;max-width:260px;}
+.footer-col h5{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray2);margin-bottom:20px;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:12px;}
+.footer-col a{font-size:14px;color:var(--gray);text-decoration:none;transition:color 0.2s;}
+.footer-col a:hover{color:var(--green);}
+.footer-bottom{max-width:1200px;margin:32px auto 0;display:flex;justify-content:space-between;font-size:13px;color:var(--gray);}
+
+/* WHATSAPP FLOAT */
+.wa-float{position:fixed;bottom:32px;right:32px;z-index:200;width:56px;height:56px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 32px rgba(37,211,102,0.4);text-decoration:none;animation:waBounce 3s ease-in-out infinite;}
+@keyframes waBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.wa-float:hover{background:#22c35e;transform:scale(1.1)!important;animation:none;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:rgba(0,232,122,0.3);border-radius:2px;}
+
+@media(max-width:900px){
+  nav{padding:16px 24px;}
+  .nav-links{display:none;}
+  .hero{padding:100px 24px 60px;}
+  section{padding:60px 24px;}
+  .services-inner,.pricing-inner,.faq-inner{padding:0;}
+  .s-panel.active{grid-template-columns:1fr;}
+  .pricing-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr;}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:40px;}
+  footer{padding:40px 24px;}
+  .tools-strip{padding:32px 24px;}
+  .cta-band{padding:60px 24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/923115831018" target="_blank" class="wa-float" title="WhatsApp us">💬</a>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Ledger<span>ly</span></a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="https://wa.me/923115831018" class="nav-wa" target="_blank">💬 WhatsApp</a></li>
+    <li><a href="login.html" class="nav-cta">Client Login →</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-orb"></div>
+  <!-- Floating emojis -->
+  <div class="floater" style="left:8%;animation-duration:12s;animation-delay:0s;font-size:22px;">💰</div>
+  <div class="floater" style="left:18%;animation-duration:15s;animation-delay:3s;font-size:18px;">📊</div>
+  <div class="floater" style="left:75%;animation-duration:13s;animation-delay:1s;font-size:20px;">💵</div>
+  <div class="floater" style="left:85%;animation-duration:16s;animation-delay:5s;font-size:16px;">📈</div>
+  <div class="floater" style="left:55%;animation-duration:11s;animation-delay:7s;font-size:24px;">🤑</div>
+  <div class="floater" style="left:35%;animation-duration:14s;animation-delay:2s;font-size:18px;">💳</div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">✦ For E-Commerce · SaaS · Startups · Agencies</div>
+    <h1>
+      <span class="word-rotate" id="wordRotate">E-Commerce</span>
+      <span class="static">bookkeeping,<br>in real-time.</span>
+    </h1>
+    <p class="hero-sub">We handle your books so you can handle your business. Real-time financials, dedicated bookkeeper, zero stress.</p>
+    <div class="hero-ctas">
+      <a href="https://wa.me/923115831018?text=Hi!%20I'd%20like%20a%20free%20audit%20of%20my%20books." target="_blank" class="btn-primary">📋 Get a Free Audit</a>
+      <a href="#pricing" class="btn-secondary">View Pricing →</a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item"><span>Real-Time Books</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Zero Stress Tax Filing</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Dedicated Bookkeeper</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Catch-Up & Cleanup</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Accounts Payable & Receivable</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Payroll Management</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Federal & State Taxes</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>QuickBooks · Xero · Shopify</span></div><div class="marquee-dot"></div>
+    <!-- duplicate for seamless loop -->
+    <div class="marquee-item"><span>Real-Time Books</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Zero Stress Tax Filing</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Dedicated Bookkeeper</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Catch-Up & Cleanup</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Accounts Payable & Receivable</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Payroll Management</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>Federal & State Taxes</span></div><div class="marquee-dot"></div>
+    <div class="marquee-item"><span>QuickBooks · Xero · Shopify</span></div><div class="marquee-dot"></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="services-inner">
+    <div class="reveal">
+      <div class="section-label">✦ What We Do</div>
+      <h2 class="section-title">Services built for<br>your needs.</h2>
+    </div>
+    <div class="services-tabs reveal">
+      <button class="s-tab active" onclick="switchTab(0)">📚 Bookkeeping</button>
+      <button class="s-tab" onclick="switchTab(1)">🧹 Catch-Up & Cleanup</button>
+      <button class="s-tab" onclick="switchTab(2)">💸 AP & AR</button>
+      <button class="s-tab" onclick="switchTab(3)">🧾 Tax Filing</button>
+      <button class="s-tab" onclick="switchTab(4)">👥 Payroll</button>
+    </div>
+    <div class="s-panel active" id="panel-0">
+      <div class="s-panel-text">
+        <h3>Real-Time Bookkeeping</h3>
+        <p>Your books updated daily — not monthly. Know exactly where your money is at any moment. We categorize every transaction, reconcile every account, and deliver clean financials you can actually use.</p>
+        <div class="s-features">
+          <div class="s-feat">Daily transaction categorization</div>
+          <div class="s-feat">Monthly bank reconciliation</div>
+          <div class="s-feat">P&L, Balance Sheet & Cash Flow</div>
+          <div class="s-feat">QuickBooks & Xero integration</div>
+          <div class="s-feat">Dedicated bookkeeper assigned to you</div>
+        </div>
+        <a href="https://wa.me/923115831018?text=I'm interested in bookkeeping services." class="btn-primary" target="_blank">Get Started →</a>
+      </div>
+      <div class="s-visual">📊<div class="s-visual-label">Live financial dashboard</div></div>
+    </div>
+    <div class="s-panel" id="panel-1">
+      <div class="s-panel-text">
+        <h3>Catch-Up & Cleanup</h3>
+        <p>Months or years behind? Messy books inherited from a bad bookkeeper? We dig in, clean everything up, and deliver accurate historical records — ready for tax season or investors.</p>
+        <div class="s-features">
+          <div class="s-feat">Historical transaction clean-up</div>
+          <div class="s-feat">Duplicate & error correction</div>
+          <div class="s-feat">Chart of accounts restructuring</div>
+          <div class="s-feat">Tax-ready financials delivered</div>
+        </div>
+        <a href="https://wa.me/923115831018?text=I need help cleaning up my books." class="btn-primary" target="_blank">Get a Free Assessment →</a>
+      </div>
+      <div class="s-visual">🧹<div class="s-visual-label">Books cleaned, organized, accurate</div></div>
+    </div>
+    <div class="s-panel" id="panel-2">
+      <div class="s-panel-text">
+        <h3>Accounts Payable & Receivable</h3>
+        <p>Never miss a payment or invoice again. We manage your vendor bills, client invoices, and cash flow — keeping relationships intact and your working capital healthy.</p>
+        <div class="s-features">
+          <div class="s-feat">Vendor bill entry & tracking</div>
+          <div class="s-feat">Client invoice management</div>
+          <div class="s-feat">Aging reports & follow-ups</div>
+          <div class="s-feat">Cash flow forecasting</div>
+        </div>
+        <a href="https://wa.me/923115831018?text=I need AP/AR management." class="btn-primary" target="_blank">Get Started →</a>
+      </div>
+      <div class="s-visual">💸<div class="s-visual-label">Cash flow always under control</div></div>
+    </div>
+    <div class="s-panel" id="panel-3">
+      <div class="s-panel-text">
+        <h3>Federal & State Tax Filing</h3>
+        <p>Tax season without the panic. We prepare and file your federal and state returns accurately, maximize your deductions, and keep you compliant — year after year.</p>
+        <div class="s-features">
+          <div class="s-feat">Federal income tax preparation</div>
+          <div class="s-feat">State tax filing (all states)</div>
+          <div class="s-feat">Quarterly estimated tax planning</div>
+          <div class="s-feat">Deduction maximization</div>
+          <div class="s-feat">IRS correspondence support</div>
+        </div>
+        <a href="https://wa.me/923115831018?text=I need tax filing help." class="btn-primary" target="_blank">Get Started →</a>
+      </div>
+      <div class="s-visual">🧾<div class="s-visual-label">Tax-ready all year long</div></div>
+    </div>
+    <div class="s-panel" id="panel-4">
+      <div class="s-panel-text">
+        <h3>Payroll Management</h3>
+        <p>Pay your team on time, every time — with full compliance. We handle payroll processing, payroll taxes, and W-2/1099 filings so you can focus on growing your team.</p>
+        <div class="s-features">
+          <div class="s-feat">Payroll processing & direct deposit</div>
+          <div class="s-feat">Payroll tax filing & deposits</div>
+          <div class="s-feat">W-2 & 1099 preparation</div>
+          <div class="s-feat">Employee & contractor management</div>
+        </div>
+        <a href="https://wa.me/923115831018?text=I need payroll management." class="btn-primary" target="_blank">Get Started →</a>
+      </div>
+      <div class="s-visual">👥<div class="s-visual-label">Payroll done right, every time</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section reveal">
+  <div class="stats-big" id="statsCounter">$0</div>
+  <div class="stats-sub">managed in client revenue — and counting.</div>
+  <div class="stats-grid">
+    <div class="stat-item reveal"><div class="stat-num">50+</div><div class="stat-label">Clients Served</div></div>
+    <div class="stat-item reveal"><div class="stat-num">100%</div><div class="stat-label">On-Time Delivery</div></div>
+    <div class="stat-item reveal"><div class="stat-num">5★</div><div class="stat-label">Average Rating</div></div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<div class="tools-strip">
+  <div class="tools-inner">
+    <div class="tools-label">Works with your existing tools</div>
+    <div class="tools-logos">
+      <div class="tool-logo">🟢 QuickBooks</div>
+      <div class="tool-logo">🔵 Xero</div>
+      <div class="tool-logo">🛍 Shopify</div>
+      <div class="tool-logo">💳 Stripe</div>
+      <div class="tool-logo">⚡ Zapier</div>
+      <div class="tool-logo">📦 Amazon</div>
+      <div class="tool-logo">🏦 Wise</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-header reveal">
+      <div class="section-label">✦ Pricing</div>
+      <h2 class="section-title">Simple, transparent pricing.</h2>
+      <p style="color:var(--gray);font-size:16px;font-weight:300;">Every plan includes a dedicated bookkeeper. No hidden fees.</p>
+    </div>
+    <div class="pricing-grid reveal">
+      <!-- STARTER -->
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-desc">For new businesses and freelancers getting their books in order.</div>
+        <div class="price-from">Starts at</div>
+        <div class="price-amount">$150<span>/mo</span></div>
+        <div class="price-period">Billed monthly · cancel anytime</div>
+        <a href="https://wa.me/923115831018?text=I'm interested in the Starter plan." class="price-btn price-btn-secondary" target="_blank">Get a Quote →</a>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feat">Monthly bookkeeping</div>
+          <div class="price-feat">Bank reconciliation</div>
+          <div class="price-feat">P&L & Balance Sheet</div>
+          <div class="price-feat">Dedicated bookkeeper</div>
+          <div class="price-feat">Email support</div>
+        </div>
+      </div>
+      <!-- GROWTH -->
+      <div class="price-card featured">
+        <div class="price-badge">⭐ Most Popular</div>
+        <div class="price-name">Growth</div>
+        <div class="price-desc">For scaling e-commerce stores and SaaS companies with growing complexity.</div>
+        <div class="price-from">Starts at</div>
+        <div class="price-amount">$350<span>/mo</span></div>
+        <div class="price-period">Billed monthly · cancel anytime</div>
+        <a href="https://wa.me/923115831018?text=I'm interested in the Growth plan." class="price-btn price-btn-primary" target="_blank">Get a Quote →</a>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feat">Everything in Starter, plus:</div>
+          <div class="price-feat">AP & AR management</div>
+          <div class="price-feat">Cash flow forecasting</div>
+          <div class="price-feat">Payroll management</div>
+          <div class="price-feat">Quarterly tax planning</div>
+          <div class="price-feat">Priority support</div>
+        </div>
+      </div>
+      <!-- SCALE -->
+      <div class="price-card">
+        <div class="price-name">Scale</div>
+        <div class="price-desc">For agencies and high-volume businesses with complex financial operations.</div>
+        <div class="price-from">Starts at</div>
+        <div class="price-amount">$600<span>/mo</span></div>
+        <div class="price-period">Billed monthly · cancel anytime</div>
+        <a href="https://wa.me/923115831018?text=I'm interested in the Scale plan." class="price-btn price-btn-secondary" target="_blank">Get a Quote →</a>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feat">Everything in Growth, plus:</div>
+          <div class="price-feat">Full federal & state tax filing</div>
+          <div class="price-feat">Custom financial reporting</div>
+          <div class="price-feat">CFO advisory sessions</div>
+          <div class="price-feat">Catch-up included</div>
+          <div class="price-feat">Dedicated account manager</div>
+        </div>
+      </div>
+    </div>
+    <div class="pricing-note">Not sure which plan? <a href="https://wa.me/923115831018?text=I need help choosing a plan." target="_blank">WhatsApp us for a free consultation →</a></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="faq-title reveal">FAQ</div>
+    <div class="faq-item reveal">
+      <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-num">01</span>What industries do you work with?<span class="faq-arrow">+</span></div>
+      <div class="faq-a">We specialize in e-commerce (Shopify, Amazon, WooCommerce), SaaS companies, startups, and digital agencies. These businesses have unique financial needs — revenue recognition, inventory, subscription billing — that we handle daily.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-num">02</span>I'm behind on my books — can you help?<span class="faq-arrow">+</span></div>
+      <div class="faq-a">Absolutely. Catch-up bookkeeping is one of our most popular services. Whether you're 3 months or 3 years behind, we'll get your books clean and tax-ready. We'll give you a free assessment and timeline upfront.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-num">03</span>Do you file taxes?<span class="faq-arrow">+</span></div>
+      <div class="faq-a">Yes. We prepare and file federal and state tax returns for businesses. Because your books are always clean with us, tax season becomes a smooth, stress-free process — not a mad scramble.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-num">04</span>How quickly will I get my books?<span class="faq-arrow">+</span></div>
+      <div class="faq-a">For ongoing bookkeeping, your books are updated and delivered by the 5th of every month. For catch-up work, we'll give you a specific timeline based on how far back we need to go.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-num">05</span>What software do you use?<span class="faq-arrow">+</span></div>
+      <div class="faq-a">We work with QuickBooks Online and Xero primarily, and can integrate with Shopify, Stripe, Amazon, and most e-commerce platforms. If you're not set up yet, we'll help you get started.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-num">06</span>Can I cancel anytime?<span class="faq-arrow">+</span></div>
+      <div class="faq-a">Yes. All plans are month-to-month with no long-term contracts. We keep clients through results, not lock-ins. Cancel anytime with 30 days notice.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div class="section-label" style="justify-content:center;">✦ Ready to Start?</div>
+  <h2>Get a free audit<br>of your books today.</h2>
+  <p>We'll review your financials, identify issues, and give you a clear action plan — completely free.</p>
+  <div class="cta-btns">
+    <a href="https://wa.me/923115831018?text=I'd like a free audit of my books." target="_blank" class="btn-wa">💬 WhatsApp Us Now</a>
+    <a href="login.html" class="btn-secondary">Client Login →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">Ledger<span>ly</span></a>
+      <p>Real-time bookkeeping for e-commerce, SaaS, startups and agencies. Your dedicated financial team.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <ul>
+        <li><a href="#services">Bookkeeping</a></li>
+        <li><a href="#services">Catch-Up & Cleanup</a></li>
+        <li><a href="#services">AP & AR</a></li>
+        <li><a href="#services">Tax Filing</a></li>
+        <li><a href="#services">Payroll</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="resources.html">Free Resources</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Contact</h5>
+      <ul>
+        <li><a href="https://wa.me/923115831018" target="_blank">💬 WhatsApp</a></li>
+        <li><a href="login.html">Client Portal</a></li>
+        <li><a href="#pricing">Get a Quote</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Ledgerly. All rights reserved.</span>
+    <span>WhatsApp: +92 311 583 1018</span>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// Word rotate in hero
+const words=['E-Commerce','SaaS','Startup','Agency'];
+let wi=0;
+setInterval(()=>{
+  wi=(wi+1)%words.length;
+  const el=document.getElementById('wordRotate');
+  el.style.opacity='0';
+  el.style.transform='translateY(-10px)';
+  setTimeout(()=>{
+    el.textContent=words[wi];
+    el.style.transition='all 0.4s ease';
+    el.style.opacity='1';
+    el.style.transform='translateY(0)';
+  },300);
+},2500);
+
+// Service tabs
+function switchTab(i){
+  document.querySelectorAll('.s-tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+  document.querySelectorAll('.s-panel').forEach((p,idx)=>p.classList.toggle('active',idx===i));
+}
+
+// FAQ
+function toggleFaq(el){
+  const item=el.parentElement;
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(f=>f.classList.remove('open'));
+  if(!isOpen)item.classList.add('open');
+}
+
+// Scroll reveal
+const revealObs=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('visible'),i*80);
+      revealObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// Stats counter
+let counted=false;
+const statsObs=new IntersectionObserver((entries)=>{
+  if(entries[0].isIntersecting && !counted){
+    counted=true;
+    let val=0;
+    const target=5200000;
+    const step=target/80;
+    const counter=setInterval(()=>{
+      val+=step;
+      if(val>=target){val=target;clearInterval(counter);}
+      document.getElementById('statsCounter').textContent='$'+Math.round(val).toLocaleString();
+    },20);
+  }
+},{threshold:0.3});
+const statsEl=document.querySelector('.stats-big');
+if(statsEl)statsObs.observe(statsEl);
+</script>
+</body>
+</html>
